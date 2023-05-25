@@ -1,53 +1,53 @@
 import PropTypes from 'prop-types';
-import { React, Component } from 'react';
+import { useState } from 'react';
 import Modal from 'components/Modal/Modal';
-class ImageGalleryItem extends Component {
-  state = {
-    showModal: false,
+
+export default function ImageGalleryItem({
+  id,
+  webformatURL,
+  largeImageURL,
+  tags,
+}) {
+  const [showModal, setShowModal] = useState(false);
+
+  const openModal = () => {
+    setShowModal(true);
   };
 
-  openModal = () => {
-    this.setState({ showModal: true });
+  const closeModal = () => {
+    setShowModal(false);
   };
 
-  closeModal = () => {
-    this.setState({ showModal: false });
+  const liStyles = {
+    cursor: 'pointer',
+    padding: '5px',
+    width: '200px',
+    height: '200px',
+    border: '1px solid rgba(102, 51, 153, 0.6)',
+    borderRadius: '4px',
   };
 
-  render() {
-    const { id, webformatURL, largeImageURL, tags } = this.props;
-    const { showModal } = this.state;
+  const imgStyle = {
+    display: 'block',
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
+    borderRadius: '4px',
+  };
 
-    const liStyles = {
-      cursor: 'pointer',
-      width: '300px',
-      height: '300px',
-    };
+  return (
+    <>
+      <li style={liStyles} key={id} onClick={openModal}>
+        <img style={imgStyle} src={webformatURL} alt={tags} />
+      </li>
 
-    const imgStyle = {
-      display: 'block',
-      width: '100%',
-      height: '100%',
-      objectFit: 'cover',
-    }
-
-    return (
-      <>
-        <li style={liStyles} key={id} onClick={this.openModal}>
-          <img style={imgStyle} src={webformatURL} alt={tags} />
-        </li>
-
-        {showModal && (
-          <Modal onClose={this.closeModal} src={largeImageURL} alt={tags} />
-        )}
-      </>
-    );
-  }
+      {showModal && (
+        <Modal onClose={closeModal} src={largeImageURL} alt={tags} />
+      )}
+    </>
+  );
 }
-
-
-export default ImageGalleryItem;
 
 ImageGalleryItem.protoType = {
-data: PropTypes.object.isRequired,
-}
+  data: PropTypes.object.isRequired,
+};

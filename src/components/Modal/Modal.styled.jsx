@@ -6,35 +6,35 @@ export const ModalBackdrop = styled.div`
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(102, 51, 153, 0.7)
+    background-color: rgba(102, 51, 153, 0.7);
 `
 export const ModalContent = styled.div`
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    min-height: 70%;
-    max-width: 70%;
-    width: 100%;
-    padding: 50px;
-    border-radius: 3px;
+    height: 70%;
+    width: 70%;
+    border-radius: 4px;
 
 `
 export const ModalImg = styled.img`
     display: block;
+    border-radius: 4px;
     width: 100%;
     height: 100%;
+    object-fit: cover;
 `
 
 export const CloseBtn = styled.button`
   position: absolute;
-  top: 10px;
-  right: 10px;
-  padding: 5px 10px;
+  top: 5px;
+  right: 5px;
   background-color: transparent;
-  color: #f9ecf9;
+  color: white;
+  padding:5px;
   border: none;
-  font-size: 25px;
+  font-size: 18px;
   font-weight: bold;
   cursor: pointer;
 `

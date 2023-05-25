@@ -2,7 +2,8 @@ import styled from '@emotion/styled';
 
 export const SearchContainer = styled.header`
   min-width: 100vw;
-  height: 100%;
+  align-items: center;
+  padding: 20px;
   display: flex;
   justify-content: center;
   background-color:  rgba(102, 51, 153, 0.6);
@@ -11,19 +12,18 @@ export const SearchContainer = styled.header`
 export const SearchForm = styled.form`
   display: flex;
   justify-content: center;
-  gap: 30px;
-  align-items: center;
-  padding: 50px 200px;
-  width: 100%;
-  border-radius: 3px;
+  gap: 20px;
+  max-width: 600px;
 `;
+
 export const SearchFormBtn = styled.button`
+  width: 120px;
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 25px;
+  font-size: 16px;
   font-weight: bold;
-  padding: 16px;
+  padding: 10px;
   background-color: rgba(102, 51, 153);
   opacity: 0.8;
   color: white;
@@ -38,19 +38,17 @@ export const SearchFormBtn = styled.button`
   }
 `;
 export const SearchFormInput = styled.input`
-  height: 45px;
   padding: 10px;
   border-radius: 4px;
 
   display: inline-block;
-  width: 100%;
-  font-size: 20px;
+  width: 300px;
+  font-size: 16px;
   border: none;
   outline: none;
-  padding-left: 10px;
-  padding-right: 4px;
 
   &&::placeholder {
+    font-size: 14px;
     padding-left: 10px;
   }
 `;

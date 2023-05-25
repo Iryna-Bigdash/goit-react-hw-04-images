@@ -1,5 +1,6 @@
-import React, { Component } from 'react';
+import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+import { toast } from 'react-hot-toast';
 import { GalleryList } from './ImageGallery.styled';
 import { getPictures } from 'services/getImg';
 import ImageGalleryItem from 'components/ImageGalleryItem/ImageGalleryItem';
@@ -7,94 +8,185 @@ import Loader from 'components/Loader/Loader';
 import ErrorPage from 'components/ErrorPage/ErrorPage';
 import LoadMoreBtn from 'components/Button/Button';
 
-class ImageGallery extends Component {
-  state = {
-    pictures: [],
-    error: '',
-    page: 1,
-    status: 'idle',
-  };
+export default function ImageGallery({ value }) {
+  const [pictures, setPictures] = useState([]);
+  const [error, setError] = useState('');
+  const [page, setPage] = useState(1);
+  const [status, setStatus] = useState('idle');
+  // const [prevValue, setPrevValue] = useState(null);
 
-  componentDidMount() {
-    if (this.props.value.trim() !== '') {
-      this.fetchPictures();
+  useEffect(() => {
+    if (value.trim() === '') {
+      return;
     }
-  }
 
-  componentDidUpdate(prevProps) {
-    if (prevProps.value !== this.props.value) {
-      this.setState({ pictures: [], page: 1 }, () => {
-        this.fetchPictures();
-      });
-    }
-  }
+    async function fetchPictures() {
+      try {
+        const response = await getPictures(value.trim(), page);
+        const data = await response.json();
+        setStatus('pending');
 
-  fetchPictures = async () => {
-    const { value } = this.props;
-    const { page } = this.state;
+        if (data.hits.length === 0) {
+          setPictures([]);
+          setStatus('rejected');
+          throw new Error(
+            'Unfortunately, nothing was found for your query... Please check the correctness of your input and try again!'
+          );
+        }
+        if (data.hits.length > 0) {
+          if(page === 1){
+            toast.success(`There are ${data.total} total images`);
+          }
 
-    try {
-      this.setState({ status: 'pending' });
+          // як реалізувати скидання ст до 1-шоі при зміні валью??
+          // if (value !== prevProps.value) {
+          // setPictures([]);
+          // setPage(1);
+          // () => {
+          //   fetchPictures();
+          // };
 
-      const response = await getPictures(value.trim(), page);
-      const data = await response.json();
 
-      if (data.hits.length === 0) {
-        throw new Error(
-          'Unfortunately, nothing was found for your query... Please check the correctness of your input and try again!'
-        );
+          setPictures(prevState => [...prevState, ...data.hits]);
+          setStatus('resolved');
+        }
+        if (data.hits.length === data.total) {
+          toast.success(`You watched all ${data.total} images`);
+        }
+        return;
+      } catch (error) {
+        console.log(error);
+        setError(error.message);
+        setStatus('rejected');
       }
-
-      this.setState(prevState => ({
-        pictures: [...prevState.pictures, ...data.hits],
-        status: 'resolved',
-      }));
-    } catch (error) {
-      console.log(error);
-      this.setState({ error: error.message, status: 'rejected' });
     }
+
+    fetchPictures();
+  }, [value, page]);
+
+  const onLoadMoreClick = () => {
+    setPage(prevPage => prevPage + 1);
+    setStatus('pending');
   };
 
-  onLoadMoreClick = () => {
-    this.setState(
-      prevState => ({ page: prevState.page + 1, status: 'pending' }),
-      () => {
-        this.fetchPictures();
-      }
-    );
-  };
+  return (
+    <>
+      {status === 'rejected' && <ErrorPage error={error} />}
+      <GalleryList>
+        {pictures.map(el => (
+          <ImageGalleryItem
+            key={el.id}
+            id={el.id}
+            webformatURL={el.webformatURL}
+            largeImageURL={el.largeImageURL}
+            tags={el.tags}
+          />
+        ))}
+      </GalleryList>
+      {status === 'pending' && <Loader />}
 
-  render() {
-    const { pictures, error, status } = this.state;
-
-    return (
-      <>
-        {status === 'pending' && <Loader />}
-
-        <GalleryList>
-          {pictures.map(el => (
-            <ImageGalleryItem
-              key={el.id}
-              id={el.id}
-              webformatURL={el.webformatURL}
-              largeImageURL={el.largeImageURL}
-              tags={el.tags}
-            />
-          ))}
-        </GalleryList>
-
-        {status === 'resolved' && pictures.length > 0 && (
-          <LoadMoreBtn onClick={this.onLoadMoreClick} />
-        )}
-
-        {status === 'rejected' && <ErrorPage error={error} />}
-      </>
-    );
-  }
+      {status === 'resolved' && pictures.length > 0 && (
+        <LoadMoreBtn onClick={onLoadMoreClick} />
+      )}
+    </>
+  );
 }
+
+// import React, { Component } from 'react';
+// import PropTypes from 'prop-types';
+// import { GalleryList } from './ImageGallery.styled';
+// import { getPictures } from 'services/getImg';
+// import ImageGalleryItem from 'components/ImageGalleryItem/ImageGalleryItem';
+// import Loader from 'components/Loader/Loader';
+// import ErrorPage from 'components/ErrorPage/ErrorPage';
+// import LoadMoreBtn from 'components/Button/Button';
+
+// class ImageGallery extends Component {
+//   state = {
+//     pictures: [],
+//     error: '',
+//     page: 1,
+//     status: 'idle',
+//   };
+
+//   componentDidMount() {
+//     if (this.props.value.trim() !== '') {
+//       this.fetchPictures();
+//     }
+//   }
+
+//   componentDidUpdate(prevProps) {
+//     if (prevProps.value !== this.props.value) {
+//       this.setState({ pictures: [], page: 1 }, () => {
+//         this.fetchPictures();
+//       });
+//     }
+//   }
+
+//   fetchPictures = async () => {
+//     const { value } = this.props;
+//     const { page } = this.state;
+
+//     try {
+//       this.setState({ status: 'pending' });
+
+//       const response = await getPictures(value.trim(), page);
+//       const data = await response.json();
+
+//       if (data.hits.length === 0) {
+//         throw new Error(
+//           'Unfortunately, nothing was found for your query... Please check the correctness of your input and try again!'
+//         );
+//       }
+
+//       this.setState(prevState => ({
+//         pictures: [...prevState.pictures, ...data.hits],
+//         status: 'resolved',
+//       }));
+//     } catch (error) {
+//       console.log(error);
+//       this.setState({ error: error.message, status: 'rejected' });
+//     }
+//   };
+
+//   onLoadMoreClick = () => {
+//     this.setState(
+//       prevState => ({ page: prevState.page + 1, status: 'pending' }),
+//       () => {
+//         this.fetchPictures();
+//       }
+//     );
+//   };
+
+//   render() {
+//     const { pictures, error, status } = this.state;
+
+//     return (
+//       <>
+//         {status === 'pending' && <Loader />}
+
+//         <GalleryList>
+//           {pictures.map(el => (
+//             <ImageGalleryItem
+//               key={el.id}
+//               id={el.id}
+//               webformatURL={el.webformatURL}
+//               largeImageURL={el.largeImageURL}
+//               tags={el.tags}
+//             />
+//           ))}
+//         </GalleryList>
+
+//         {status === 'resolved' && pictures.length > 0 && (
+//           <LoadMoreBtn onClick={this.onLoadMoreClick} />
+//         )}
+
+//         {status === 'rejected' && <ErrorPage error={error} />}
+//       </>
+//     );
+//   }
+// }
 
 ImageGallery.propTypes = {
   value: PropTypes.string.isRequired,
 };
-
-export default ImageGallery;
