@@ -37,14 +37,6 @@ export default function ImageGallery({ value }) {
             toast.success(`There are ${data.total} total images`);
           }
 
-          // як реалізувати скидання ст до 1-шоі при зміні value??
-          // if (value !== prevProps.value) {
-          // setPictures([]);
-          // setPage(1);
-          // () => {
-          //   fetchPictures();
-          // };
-
           setPictures(prevState => [...prevState, ...data.hits]);
           setStatus('resolved');
         }
@@ -61,6 +53,20 @@ export default function ImageGallery({ value }) {
 
     fetchPictures();
   }, [value, page]);
+
+  // як реалізувати скидання ст до 1-шоі при зміні value??
+  // створила ще 1 useEffect але запит дублюється, а потім вже скидається пейжа до 1
+  // if (value !== prevProps.value) {
+  // setPictures([]);
+  // setPage(1);
+  // () => {
+  //   fetchPictures();
+  // };
+
+  useEffect(() => {
+    setPictures([]);
+    setPage(1);
+  }, [value]);
 
   const onLoadMoreClick = () => {
     setPage(prevPage => prevPage + 1);
@@ -90,22 +96,11 @@ export default function ImageGallery({ value }) {
   );
 }
 
-// import React, { Component } from 'react';
-// import PropTypes from 'prop-types';
-// import { GalleryList } from './ImageGallery.styled';
-// import { getPictures } from 'services/getImg';
-// import ImageGalleryItem from 'components/ImageGalleryItem/ImageGalleryItem';
-// import Loader from 'components/Loader/Loader';
-// import ErrorPage from 'components/ErrorPage/ErrorPage';
-// import LoadMoreBtn from 'components/Button/Button';
+ImageGallery.propTypes = {
+  value: PropTypes.string.isRequired,
+};
 
 // class ImageGallery extends Component {
-//   state = {
-//     pictures: [],
-//     error: '',
-//     page: 1,
-//     status: 'idle',
-//   };
 
 //   componentDidMount() {
 //     if (this.props.value.trim() !== '') {
@@ -184,7 +179,3 @@ export default function ImageGallery({ value }) {
 //     );
 //   }
 // }
-
-ImageGallery.propTypes = {
-  value: PropTypes.string.isRequired,
-};
