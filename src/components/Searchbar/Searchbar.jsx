@@ -13,12 +13,12 @@ export default function Searchbar({ onSearch }) {
   const [value, setValue] = useState('');
 
   const handlChange = e => {
-    setValue(e.target.value);
+    setValue(e.currentTarget.value.toLowerCase());
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!value) {
+    if (value.trim() === '') {
       return toast.error('Error! Enter the text in the search field!');
     }
     onSearch(value);

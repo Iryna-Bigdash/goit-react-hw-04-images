@@ -13,7 +13,6 @@ export default function ImageGallery({ value }) {
   const [error, setError] = useState('');
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState('idle');
-  // const [prevValue, setPrevValue] = useState(null);
 
   useEffect(() => {
     if (value.trim() === '') {
@@ -34,18 +33,17 @@ export default function ImageGallery({ value }) {
           );
         }
         if (data.hits.length > 0) {
-          if(page === 1){
+          if (page === 1) {
             toast.success(`There are ${data.total} total images`);
           }
 
-          // як реалізувати скидання ст до 1-шоі при зміні валью??
+          // як реалізувати скидання ст до 1-шоі при зміні value??
           // if (value !== prevProps.value) {
           // setPictures([]);
           // setPage(1);
           // () => {
           //   fetchPictures();
           // };
-
 
           setPictures(prevState => [...prevState, ...data.hits]);
           setStatus('resolved');
