@@ -13,9 +13,17 @@ export default function ImageGallery({ value }) {
   const [error, setError] = useState('');
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState('idle');
+  const [nextValue, setNextValue] = useState('');
 
   useEffect(() => {
     if (value.trim() === '') {
+      return;
+    }
+
+    if (nextValue !== value) {
+      setPictures([]);
+      setPage(1);
+      setNextValue(value);
       return;
     }
 
@@ -32,14 +40,15 @@ export default function ImageGallery({ value }) {
             'Unfortunately, nothing was found for your query... Please check the correctness of your input and try again!'
           );
         }
+        setPictures(prevState => [...prevState, ...data.hits]);
+        setStatus('resolved');
+
         if (data.hits.length > 0) {
           if (page === 1) {
             toast.success(`There are ${data.total} total images`);
           }
-
-          setPictures(prevState => [...prevState, ...data.hits]);
-          setStatus('resolved');
         }
+
         if (data.hits.length === data.total) {
           toast.success(`You watched all ${data.total} images`);
         }
@@ -52,21 +61,7 @@ export default function ImageGallery({ value }) {
     }
 
     fetchPictures();
-  }, [value, page]);
-
-  // як реалізувати скидання ст до 1-шоі при зміні value??
-  // створила ще 1 useEffect але запит дублюється, а потім вже скидається пейжа до 1
-  // if (value !== prevProps.value) {
-  // setPictures([]);
-  // setPage(1);
-  // () => {
-  //   fetchPictures();
-  // };
-
-  useEffect(() => {
-    setPictures([]);
-    setPage(1);
-  }, [value]);
+  }, [value, page, nextValue]);
 
   const onLoadMoreClick = () => {
     setPage(prevPage => prevPage + 1);
@@ -99,83 +94,3 @@ export default function ImageGallery({ value }) {
 ImageGallery.propTypes = {
   value: PropTypes.string.isRequired,
 };
-
-// class ImageGallery extends Component {
-
-//   componentDidMount() {
-//     if (this.props.value.trim() !== '') {
-//       this.fetchPictures();
-//     }
-//   }
-
-//   componentDidUpdate(prevProps) {
-//     if (prevProps.value !== this.props.value) {
-//       this.setState({ pictures: [], page: 1 }, () => {
-//         this.fetchPictures();
-//       });
-//     }
-//   }
-
-//   fetchPictures = async () => {
-//     const { value } = this.props;
-//     const { page } = this.state;
-
-//     try {
-//       this.setState({ status: 'pending' });
-
-//       const response = await getPictures(value.trim(), page);
-//       const data = await response.json();
-
-//       if (data.hits.length === 0) {
-//         throw new Error(
-//           'Unfortunately, nothing was found for your query... Please check the correctness of your input and try again!'
-//         );
-//       }
-
-//       this.setState(prevState => ({
-//         pictures: [...prevState.pictures, ...data.hits],
-//         status: 'resolved',
-//       }));
-//     } catch (error) {
-//       console.log(error);
-//       this.setState({ error: error.message, status: 'rejected' });
-//     }
-//   };
-
-//   onLoadMoreClick = () => {
-//     this.setState(
-//       prevState => ({ page: prevState.page + 1, status: 'pending' }),
-//       () => {
-//         this.fetchPictures();
-//       }
-//     );
-//   };
-
-//   render() {
-//     const { pictures, error, status } = this.state;
-
-//     return (
-//       <>
-//         {status === 'pending' && <Loader />}
-
-//         <GalleryList>
-//           {pictures.map(el => (
-//             <ImageGalleryItem
-//               key={el.id}
-//               id={el.id}
-//               webformatURL={el.webformatURL}
-//               largeImageURL={el.largeImageURL}
-//               tags={el.tags}
-//             />
-//           ))}
-//         </GalleryList>
-
-//         {status === 'resolved' && pictures.length > 0 && (
-//           <LoadMoreBtn onClick={this.onLoadMoreClick} />
-//         )}
-
-//         {status === 'rejected' && <ErrorPage error={error} />}
-//       </>
-//     );
-//   }
-// }
